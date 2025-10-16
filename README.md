@@ -23,7 +23,7 @@ Quick setup
    python manage.py migrate
    python manage.py runserver
 
-Key notes (short)
+Key notes
 
 - Permissions: Review and watchlist modification endpoints enforce ownership—users can only edit or delete their own reviews. See `watchlist_app/api/permissions.py` for the permission classes.
 
