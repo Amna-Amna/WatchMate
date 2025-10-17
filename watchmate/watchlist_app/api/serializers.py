@@ -38,36 +38,3 @@ class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = StreamPlatform
         fields = '__all__'
-
-
-# def name_length(value):
-#     if len(value) < 2:
-#         raise serializers.ValidationError("Name is too short")
-#     return value
-
-# class MovieSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(read_only=True)
-#     name = serializers.CharField(max_length=255, validators=[name_length])
-#     about = serializers.CharField()
-#     active = serializers.BooleanField(default=True)
-
-#     def create(self, validated_data):
-#         return Movie.objects.create(**validated_data)
-
-#     def update(self, instance, validated_data):
-#         instance.name = validated_data.get('name', instance.name)
-#         instance.about = validated_data.get('about', instance.about)
-#         instance.active = validated_data.get('active', instance.active)
-
-#         instance.save()
-#         return instance 
-
-#     def validate(self, data):
-#         if data.get('name') == data.get('about'):
-#             raise serializers.ValidationError("Name and About should be different")
-#         return data
-
-#     def validate_name(self, value):
-#         if len(value) < 5:
-#             raise serializers.ValidationError("Name is too short")
-#         return value

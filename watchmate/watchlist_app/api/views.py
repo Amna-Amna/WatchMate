@@ -135,63 +135,16 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
         watchlist_pk = self.kwargs.get('pk')    
         return models.Review.objects.filter(watchlist_id=watchlist_pk)
         
-# class ReviewList(generics.ListCreateAPIView):
-#     serializer_class = ReviewSerializer
 
-#     def get_queryset(self):
-#         watchlist_pk = self.kwargs.get('pk')
-#         return models.Review.objects.filter(watchlist_id=watchlist_pk)
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
 
-#     def perform_create(self, serializer):
-#         watchlist = models.WatchList.objects.get(pk=self.kwargs.get('pk'))
-#         serializer.save(watchlist=watchlist)
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        return models.Review.objects.filter(review_user__username=username)
 
-
-# class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = ReviewSerializer
-#     lookup_url_kwarg = 'review_pk'
-
-#     def get_queryset(self):
-#         watchlist_pk = self.kwargs.get('pk')
-#         return models.Review.objects.filter(watchlist_id=watchlist_pk)
-
-
-
-
-
-# @api_view(['GET', 'POST'])
-# def movie_list(request):
-#     if request.method == 'GET':
-#         movies = models.Movie.objects.all()
-#         serializer = MovieSerializer(movies, many=True)
-#         return Response(serializer.data, status = status.HTTP_200_OK)
-#     if request.method == 'POST':
-#         serializer = MovieSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @api_view(['GET', 'PUT', 'DELETE'])
-# def single_movie(request, pk):
-#     if request.method == 'GET':
-#         try: 
-#             movie = models.Movie.objects.get(pk=pk)
-#         except models.Movie.DoesNotExist:
-#             return Response({'Error': "Movie doesn't found"}, status= status.HTTP_404_NOT_FOUND)
-#         serializer = MovieSerializer(movie)
-#         return Response(serializer.data)
-
-#     if request.method == 'PUT':
-#         movie = models.Movie.objects.get(pk = pk)
-#         serializer = MovieSerializer(movie, data = request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status = 200)
-#         else: 
-#             return Response(serializer.error, status = status.HTTP_400_BAD_REQUEST)
-
-#     if request.method == 'DELETE':
-#         movie = models.Movie.objects.get(pk=pk)
-#         movie.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+class UserReviewQueryParams(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    def get_queryset(self):
+        username = self.request.query_params.get('username')
+        return models.Review.objects.filter(review_user__username=username)
