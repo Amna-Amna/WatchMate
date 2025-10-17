@@ -135,3 +135,16 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
         watchlist_pk = self.kwargs.get('pk')    
         return models.Review.objects.filter(watchlist_id=watchlist_pk)
         
+
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        return models.Review.objects.filter(review_user__username=username)
+
+class UserReviewQueryParams(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    def get_queryset(self):
+        username = self.request.query_params.get('username')
+        return models.Review.objects.filter(review_user__username=username)
