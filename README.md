@@ -1,87 +1,57 @@
-# Watchmate
+# Watchmate API
 
-A small Django + Django REST Framework project for tracking streaming platforms, watchlist items, and user reviews.
+A RESTful API built with Django and Django REST Framework for a movie and show tracking application. Users can browse streaming platforms, manage watchlists, and post reviews.
 
-User story
+## Demo
 
-- As a regular user, I want to browse streaming platforms and watchlist items, add items to my personal watchlist, and post reviews so I can track and rate what I watch.
+https://github.com/user-attachments/assets/5b9406d5-40a9-4515-b041-cfe60442d646
 
-Quick setup
+## Key Features
 
-1. Create and activate a virtual environment:
+This API was built with a focus on security, performance, and robust functionality.
 
-   python -m venv .venv
-   # Windows
-   .\.venv\Scripts\activate
+  * **Token-Based Authentication:** Secure user registration, login, and logout endpoints are handled using DRF's built-in token authentication system.
+  * **Custom Permissions:** Granular access control is implemented to protect endpoints.
+      * Only **administrators** can create, update, or delete `StreamPlatform` and `WatchList` items.
+      * Authenticated **users** can only modify or delete their **own** reviews.
+  * **API Throttling & Rate Limiting:** Custom throttling rules are in place to prevent abuse. Different rate limits are applied to anonymous users, authenticated users, and specific actions like creating reviews.
+  * **Comprehensive Data Validation:** Serializers include custom validation logic to ensure data integrity, such as confirming passwords and checking for unique usernames and emails upon registration.
+  * **Advanced Filtering:** The API provides multiple ways to retrieve data, including endpoints to filter reviews by a specific username.
+  * **Full CRUD Functionality:** The API provides complete Create, Read, Update, and Delete operations for streaming platforms, watchlist items, and reviews.
 
-2. Install dependencies:
+-----
 
-   pip install -r requirements.txt
+## API Endpoints
 
-3. Apply migrations and run the server:
+The API is organized into two main applications: `account` and `movie`.
 
-   python manage.py migrate
-   python manage.py runserver
+#### Authentication (`/account/`)
 
-Key notes
+| Method | Endpoint              | Description                    |
+| :----- | :-------------------- | :----------------------------- |
+| `POST` | `/register/`          | Register a new user.           |
+| `POST` | `/login/`             | Obtain an authentication token.|
+| `POST` | `/logout/`            | Invalidate the user's token.   |
 
-- Permissions: Review and watchlist modification endpoints enforce ownership—users can only edit or delete their own reviews. See `watchlist_app/api/permissions.py` for the permission classes.
+#### Watchlist & Reviews (`/movie/`)
 
-- Throttling: Custom throttling limits how often clients can create or update reviews to prevent abuse. See `watchlist_app/api/throttling.py` and `watchmate/settings.py` for throttle configuration.
+| Method              | Endpoint                                      | Description                                  |
+| :------------------ | :-------------------------------------------- | :------------------------------------------- |
+| `GET`, `POST`       | `/stream/list/`                               | List all or create a new streaming platform. |
+| `GET`, `PUT`, `DELETE` | `/stream/<id>/`                               | Retrieve, update, or delete a platform.      |
+| `GET`, `POST`       | `/watchlist/`                                 | List all or create a new watchlist item.     |
+| `GET`, `PUT`, `DELETE` | `/watchlist/<id>/`                            | Retrieve, update, or delete a watchlist item.|
+| `GET`               | `/watchlist/<id>/reviews/`                    | List all reviews for a specific watchlist item.|
+| `POST`              | `/watchlist/<id>/create-review/`              | Create a new review for a watchlist item.    |
+| `GET`, `PUT`, `DELETE` | `/watchlist/<id>/review/<review_id>/`         | Retrieve, update, or delete a specific review.|
+| `GET`               | `/user-reviews/<username>/`                   | List all reviews by a specific user.         |
+| `GET`               | `/query-reviews/`                              | List all reviews by a specific user using query params. |       |
 
-API endpoints and quick curl examples
+-----
 
-Base path prefixes defined in `watchmate/urls.py`:
-- Watchlist API: `/movie/`
-- Account API (register/login/logout): `/account/`
+## Credits
 
-Common endpoints (relative to server root `http://localhost:8000`):
+This project was built entirely by me as part of learning Django Rest Framework. **No AI tools were used.**
 
-- Register (create user)
-  - POST `/account/register/`
-  - Example:
+I relied on the official **Django** and **Django Rest Framework** documentation, as well as community resources like **Stack Overflow**, for research and troubleshooting.
 
-    curl -X POST http://localhost:8000/account/register/ -H "Content-Type: application/json" -d '{"username":"alice","email":"alice@example.com","password":"secret123","confirm_password":"secret123"}'
-
-- Login (obtain token)
-  - POST `/account/login/`
-  - Example:
-
-    curl -X POST http://localhost:8000/account/login/ -H "Content-Type: application/json" -d '{"username":"alice","password":"secret123"}'
-
-  - Response contains `token`; use it for authenticated requests in `Authorization: Token <token>` header.
-
-- List watchlists
-  - GET `/movie/watchlist/`
-  - Example:
-
-    curl http://localhost:8000/movie/watchlist/
-
-- Watchlist detail
-  - GET `/movie/watchlist/<id>/`
-  - Example:
-
-    curl http://localhost:8000/movie/watchlist/1/
-
-- Create review for a watchlist item (authenticated)
-  - POST `/movie/watchlist/<watchlist_id>/create-review/`
-  - Example:
-
-    curl -X POST http://localhost:8000/movie/watchlist/1/create-review/ -H "Content-Type: application/json" -H "Authorization: Token YOUR_TOKEN" -d '{"rating":5,"description":"Loved it!"}'
-
-- List reviews for a watchlist item
-  - GET `/movie/watchlist/<watchlist_id>/reviews/`
-  - Example:
-
-    curl http://localhost:8000/movie/watchlist/1/reviews/
-
-- Review detail (retrieve/update/delete; authenticated + ownership for unsafe methods)
-  - `/movie/watchlist/<watchlist_id>/review/<review_id>/`
-  - Example retrieve:
-
-    curl http://localhost:8000/movie/watchlist/1/review/2/
-
-Notes
-
-- Replace `YOUR_TOKEN` with the token returned by the login endpoint.
-- Throttling may return HTTP 429 for too many requests; permissions return 403 when actions are not allowed.
