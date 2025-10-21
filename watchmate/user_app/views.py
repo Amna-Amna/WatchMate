@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from user_app import models
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 
 @api_view(['POST'])
@@ -17,8 +19,13 @@ def registration_view(request):
             data['username'] = user.username
             data['email'] = user.email
 
-            token, created = Token.objects.get_or_create(user=user)
-            data['token'] = token.key
+            # token, created = Token.objects.get_or_create(user=user)
+            # data['token'] = token.key
+            refresh = RefreshToken.for_user(user)
+            data['refresh'] = {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                    }
         else:
             data = serializer.errors
         return Response(data, status=status.HTTP_201_CREATED)
